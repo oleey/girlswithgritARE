@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+   
+       <title>Dashboard</title>
+
+<link href='https://fonts.googleapis.com/css?family=Berkshire Swash' rel='stylesheet'>
+<style>
+.glyphicon {
+	font-size: 50px;
+}
+.legend
+{
+  float: right;
+}
+body
+{
+  font-family: Segoe WP, sans-serif;
+}
+</style>
+</head>
+<body style="background-color:linen;">
+<div class="container-fluid" style="background-color:#282E3E;color:white;height:63px;">
+	<p>
+  <img src="img/logo.png" style="float:left;">
+	<h1 style="text-align:center; font-family:Lato">
+  <strong><sup>GIRLS</sup></strong> 		
+  <cite><sub>with</sub></cite>
+   <strong><sup>GRIT</sup></strong></h1></p> 
+</div>
+
+<div class="container" style="color:maroon;text-align:center;">
+<h2 class="container">VISUAL DISPLAY OF DATA</h2>
+</div>
+<label for="month-select">Select Month</label>
+      <select class="form-control" id="month-select">
+        <option>January</option>
+        <option>February</option>
+        <option>March</option>
+        <option>April</option>
+        <option>May</option>
+        <option>June</option>
+        <option>July</option>
+        <option>August</option>
+        <option>September</option>
+        <option>October</option>
+        <option>November</option>
+        <option>December</option>
+      </select>
+      <br>
+
+<div class="container-fluid">
+
+<div class="row">
+<div class="legend">
+<h4>Legend</h4>
+<p><img src="img/cost.png" id="cost-coin"> <span>- &#8358 10</span></p>
+<p><img src="img/power.png" id="power-bulb"><span>- 100KWH </span></p>
+<p><img src="img/energy.png" id="energy-water"><span>- 50J </span></p>
+</div>
+</div>
+
+<div class="table-responsive">           
+  <table class="table">
+    <thead>
+      <tr>
+	<th>Icons</th>
+        <th>Grid</th>
+        <th>Generator</th>
+        <th>Inverter</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr  class="cost">
+	<td><span class="glyphicon glyphicon-piggy-bank"></td>
+        <td id="grid">
+          <canvas id="grid-cost" width="200" height="200" style="border:1px solid #d3d3d3;">
+        </td>
+        <td >
+        -
+        </td>
+        <td>
+-</td>
+      </tr>
+      <tr>
+	<td><span class="glyphicon glyphicon-off"></td>
+        <td >-</td>
+        <td id="generator"><canvas id="generator-cost" width="200" height="200" style="border:1px solid #d3d3d3;"></td>
+        <td>-</td>
+      </tr>
+      <tr>
+	<td><span  width="100px" class="glyphicon glyphicon-flash"></td>
+        <td>-</td>
+        <td>-</td>
+        <td id="inverter">         <canvas id="inverter-cost" width="200" height="200" style="border:1px solid #d3d3d3;"></td>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+                      
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="js/bootstrap.min.js"></script>
+
+  </body>
+  <script>
+//comment your code
+//globals
+var coins = 5;
+var items;
+var columnCount = 5; //number of columns for each element
+var rowCount;
+var offset;
+
+
+//for reading json values
+var generator = document.getElementById("generator");
+var requestURL = 'february.json';//you will need to select the right json based on user selection
+var request = new XMLHttpRequest();
+request.open('GET', requestURL);
+request.responseType = 'json';
+request.send();
+request.onload = function() {
+var monthData = request.response; //monthly data
+sumMonthlyCost(monthData);
+populateHeader(monthData);
+sourceSelector(monthData);
+}
+
+
+
+//calculate cost for the month
+function sumMonthlyCost(jsonObj) {
+var m = 0;
+for(i=0; i<jsonObj.length; i++){
+m += jsonObj[i]["Cost_since_last"];
+}
+console.log(m);
+items = (m/10).toFixed(2);  //because each coin represents 10 naira
+console.log(items);
+rowCount = Math.floor(items/columnCount); //number of rows for each element
+console.log(rowCount);
+offset = Math.floor(items) % columnCount; //get remainder
+console.log(offset);
+}
+
+function populateHeader(jsonObj) {
+  var myP = document.createElement('p');
+  myP.textContent = jsonObj.length;
+  //generator.appendChild(myP);
+}
+
+
+//for drawing
+function draw(x,y,loc,image)
+{
+    var c = document.getElementById(loc);
+    var ctx = c.getContext("2d");
+    var img = document.getElementById(image);
+    ctx.drawImage(img, x, y); 
+}
+
+window.onload = function() {
+  for(j=0; j<rowCount; j++)
+  {
+  for(i=0; i<columnCount; i++)
+  {
+  draw(20*i,20*j,"grid-cost","cost-coin");
+  }
+    }
+    if(offset > 0)
+    {
+      for (a=0; a<offset; a++)
+      {
+        draw(20*a, 20*rowCount,"grid-cost","cost-coin");
+      }
+    }
+
+    for(j=0; j<rowCount; j++)
+  {
+  for(i=0; i<columnCount; i++)
+  {
+  draw(20*i,20*j,"generator-cost","power-bulb");
+  }
+    }
+    if(offset > 0)
+    {
+      for (a=0; a<offset; a++)
+      {
+        draw(20*a, 20*rowCount,"generator-cost","power-bulb");
+      }
+    }
+
+    for(j=0; j<rowCount; j++)
+  {
+  for(i=0; i<columnCount; i++)
+  {
+  draw(20*i,20*j,"inverter-cost","energy-water");
+  }
+    }
+    if(offset > 0)
+    {
+      for (a=0; a<offset; a++)
+      {
+        draw(20*a, 20*rowCount,"inverter-cost","energy-water");
+      }
+    }
+}
+</script>
+</html>
